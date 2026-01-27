@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Questionnaire</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        h1 {
+            color: #667eea;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: #666;
+            font-size: 1.1em;
+            margin-bottom: 30px;
+        }
+        
+        .question {
+            margin-bottom: 30px;
+        }
+        
+        .question h2 {
+            color: #333;
+            font-size: 1.5em;
+            margin-bottom: 20px;
+        }
+        
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .option {
+            padding: 15px 20px;
+            background: #f5f5f5;
+            border: 2px solid transparent;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1em;
+            text-align: left;
+        }
+        
+        .option:hover {
+            background: #e3f2fd;
+            border-color: #667eea;
+        }
+        
+        .option.selected {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        
+        .button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 20px;
+        }
+        
+        .button:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+        }
+        
+        .button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .progress-bar {
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: #667eea;
+            transition: width 0.3s;
+        }
+        
+        .nav-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .back-button {
+            background: #999;
+        }
+        
+        .back-button:hover {
+            background: #777;
+        }
+        
+        textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 1em;
+            resize: vertical;
+            min-height: 100px;
+        }
+        
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .success-message {
+            text-align: center;
+            padding: 60px 20px;
+        }
+        
+        .success-message h2 {
+            color: #667eea;
+            font-size: 2.5em;
+            margin-bottom: 20px;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .error-message {
+            background: #fee;
+            border: 2px solid #fcc;
+            color: #c00;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Intro -->
+        <div id="intro">
+            <h1>📋 Questionnaire</h1>
+            <p class="subtitle">Merci de prendre quelques minutes pour répondre à ce questionnaire. Vos réponses sont anonymes.</p>
+            <button class="button" onclick="startSurvey()">Commencer</button>
+        </div>
+        
+        <!-- Questions -->
+        <div id="surveyQuestions" class="hidden">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressBar" style="width: 0%"></div>
+            </div>
+            <p id="progressText" style="color: #666; margin-bottom: 20px;">Question 1 sur 8</p>
+            
+            <div id="questionContainer"></div>
+            
+            <div class="nav-buttons">
+                <button class="button back-button" id="prevBtn" onclick="previousQuestion()" style="display:none">← Précédent</button>
+                <button class="button" id="nextBtn" onclick="nextQuestion()" disabled>Suivant →</button>
+            </div>
+        </div>
+        
+        <!-- Loading -->
+        <div id="loading" class="loading hidden">
+            <div class="spinner"></div>
+            <p>Envoi de vos réponses...</p>
+        </div>
+        
+        <!-- Thank You -->
+        <div id="thankYou" class="hidden">
+            <div class="success-message">
+                <h2>✅ Merci !</h2>
+                <p class="subtitle">Votre participation a bien été enregistrée.</p>
+            </div>
+        </div>
+        
+        <!-- Error -->
+        <div id="errorView" class="hidden">
+            <div class="error-message">
+                <h3>⚠️ Erreur</h3>
+                <p id="errorMessage">Une erreur est survenue. Veuillez réessayer.</p>
+            </div>
+            <button class="button" onclick="location.reload()">Réessayer</button>
+        </div>
+    </div>
+
+    <script>
+        // ⚠️ CONFIGURATION - REMPLACE CETTE URL PAR TON URL GOOGLE APPS SCRIPT
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzfdLjPqSx6a1aoOWA-cQsZ2GOTqQlMu2oF5zC3FyGYgehr2FVnQQyieoGqwpwwAIoz/exec';
+    
+        
+        // Questions du sondage
+        const questions = [
+            {
+                id: 'interest',
+                question: 'Seriez-vous intéressé(e) par un service qui gère tous vos besoins de locataire ?',
+                type: 'scale',
+                options: ['Pas du tout', 'Peu intéressé', 'Intéressé', 'Très intéressé', 'Absolument !']
+            },
+            {
+                id: 'age',
+                question: 'Quelle est votre tranche d\'âge ?',
+                type: 'single',
+                options: ['18-24 ans', '25-34 ans', '35-44 ans', '45-54 ans', '55+ ans']
+            },
+            {
+                id: 'status',
+                question: 'Quel est votre statut actuel ?',
+                type: 'single',
+                options: ['Étudiant(e)', 'Salarié(e)', 'Indépendant(e)', 'Demandeur d\'emploi', 'Autre']
+            },
+            {
+                id: 'rental',
+                question: 'Êtes-vous actuellement locataire ?',
+                type: 'single',
+                options: ['Oui, locataire', 'Non, propriétaire', 'En recherche', 'Hébergé(e)']
+            },
+            {
+                id: 'pain',
+                question: 'Principale difficulté rencontrée en tant que locataire ?',
+                type: 'single',
+                options: [
+                    'Comprendre mon bail',
+                    'Démarches administratives',
+                    'Problèmes propriétaire',
+                    'Récupération caution',
+                    'Trouver meilleurs contrats',
+                    'Autre'
+                ]
+            },
+            {
+                id: 'feature',
+                question: 'Fonctionnalité qui vous intéresserait le plus ?',
+                type: 'single',
+                options: [
+                    'Analyse IA du bail',
+                    'Assistance juridique',
+                    'Optimisation contrats',
+                    'Gestion APL',
+                    'Suivi caution',
+                    'Paiement loyer auto'
+                ]
+            },
+            {
+                id: 'pricing',
+                question: 'Combien seriez-vous prêt(e) à payer mensuellement ?',
+                type: 'single',
+                options: ['Gratuit uniquement', '5-10€/mois', '10-20€/mois', '20-30€/mois', '30€+/mois']
+            },
+            {
+                id: 'feedback',
+                question: 'Des suggestions ou remarques ? (optionnel)',
+                type: 'text',
+                options: []
+            }
+        ];
+        
+        let currentQ = 0;
+        let answers = {};
+        
+        function showView(viewName) {
+            ['intro', 'surveyQuestions', 'loading', 'thankYou', 'errorView'].forEach(v => {
+                document.getElementById(v).classList.add('hidden');
+            });
+            document.getElementById(viewName).classList.remove('hidden');
+        }
+        
+        function startSurvey() {
+            currentQ = 0;
+            answers = {};
+            showView('surveyQuestions');
+            renderQuestion();
+        }
+        
+        function renderQuestion() {
+            const q = questions[currentQ];
+            const container = document.getElementById('questionContainer');
+            
+            // Progress
+            const progress = ((currentQ + 1) / questions.length) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+            document.getElementById('progressText').textContent = `Question ${currentQ + 1} sur ${questions.length}`;
+            
+            // Question
+            let html = `<div class="question"><h2>${q.question}</h2>`;
+            
+            if (q.type === 'text') {
+                html += `<textarea id="answer" placeholder="Votre réponse...">${answers[q.id] || ''}</textarea>`;
+            } else {
+                html += '<div class="options">';
+                q.options.forEach((opt, idx) => {
+                    const selected = answers[q.id] === (q.type === 'scale' ? idx : opt) ? 'selected' : '';
+                    const value = q.type === 'scale' ? idx : opt;
+                    html += `<div class="option ${selected}" onclick="selectAnswer('${q.id}', ${JSON.stringify(value).replace(/"/g, '&quot;')})">${opt}</div>`;
+                });
+                html += '</div>';
+            }
+            
+            html += '</div>';
+            container.innerHTML = html;
+            
+            // Buttons
+            document.getElementById('prevBtn').style.display = currentQ > 0 ? 'block' : 'none';
+            document.getElementById('nextBtn').textContent = currentQ === questions.length - 1 ? '✓ Terminer' : 'Suivant →';
+            updateNextButton();
+        }
+        
+        function selectAnswer(id, value) {
+            answers[id] = value;
+            renderQuestion();
+        }
+        
+        function updateNextButton() {
+            const q = questions[currentQ];
+            const hasAnswer = q.type === 'text' || answers[q.id] !== undefined;
+            document.getElementById('nextBtn').disabled = !hasAnswer && q.type !== 'text';
+        }
+        
+        function nextQuestion() {
+            const q = questions[currentQ];
+            if (q.type === 'text') {
+                const textarea = document.getElementById('answer');
+                if (textarea) answers[q.id] = textarea.value;
+            }
+            
+            if (currentQ < questions.length - 1) {
+                currentQ++;
+                renderQuestion();
+            } else {
+                submitSurvey();
+            }
+        }
+        
+        function previousQuestion() {
+            if (currentQ > 0) {
+                currentQ--;
+                renderQuestion();
+            }
+        }
+        
+        async function submitSurvey() {
+            showView('loading');
+            
+            // Préparer les données
+            const data = {
+                timestamp: new Date().toISOString(),
+                ...answers
+            };
+            
+            // Convertir les valeurs d'échelle en texte
+            questions.forEach(q => {
+                if (q.type === 'scale' && typeof data[q.id] === 'number') {
+                    data[q.id] = q.options[data[q.id]];
+                }
+            });
+            
+            try {
+                const response = await fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                // Avec no-cors, on ne peut pas lire la réponse, donc on suppose que ça a marché
+                setTimeout(() => {
+                    showView('thankYou');
+                }, 1000);
+                
+            } catch (error) {
+                console.error('Erreur:', error);
+                document.getElementById('errorMessage').textContent = 
+                    'Impossible d\'envoyer vos réponses. Vérifiez votre connexion internet.';
+                showView('errorView');
+            }
+        }
+    </script>
+</body>
+</html>
