@@ -190,6 +190,40 @@
             font-weight: bold;
             font-size: 0.9em;
         }
+        .responses-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            font-size: 0.9em;
+        }
+        .responses-table th {
+            background: #667eea;
+            color: white;
+            padding: 12px 8px;
+            text-align: left;
+            font-weight: bold;
+        }
+        .responses-table td {
+            padding: 10px 8px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .responses-table tr:hover {
+            background: #f8f9fa;
+        }
+        .delete-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.85em;
+        }
+        .delete-btn:hover {
+            background: #c82333;
+        }
+        .button-danger { background: #dc3545; }
+        .button-danger:hover { background: #c82333; }
     </style>
 </head>
 <body>
@@ -253,6 +287,7 @@
                 <button class="admin-tab active" onclick="showAdminTab('hypotheses')">Hypothèses</button>
                 <button class="admin-tab" onclick="showAdminTab('stats')">Statistiques</button>
                 <button class="admin-tab" onclick="showAdminTab('segments')">Segmentation</button>
+                <button class="admin-tab" onclick="showAdminTab('responses')">Gérer réponses</button>
             </div>
             
             <div id="adminHypotheses" class="admin-content">
@@ -270,6 +305,12 @@
             <div id="adminSegments" class="admin-content hidden">
                 <div id="segmentationContainer"></div>
             </div>
+            
+            <div id="adminResponses" class="admin-content hidden">
+                <h2>Gérer les réponses</h2>
+                <button class="button button-danger button-small" onclick="deleteAllResponses()">🗑️ Supprimer toutes les réponses</button>
+                <div id="responsesTableContainer"></div>
+            </div>
         </div>
     </div>
     
@@ -277,7 +318,7 @@
 
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-        import { getFirestore, collection, addDoc, getDocs } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+        import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
         const firebaseConfig = {
             apiKey: "AIzaSyCS9khxOMGI9xRTi-xaq-vA2mBEUfsx268",
@@ -295,6 +336,8 @@
         window.collection = collection;
         window.addDoc = addDoc;
         window.getDocs = getDocs;
+        window.deleteDoc = deleteDoc;
+        window.doc = doc;
     </script>
 
     <script>
@@ -339,6 +382,7 @@
             if (tab === 'hypotheses') analyzeHypotheses();
             if (tab === 'stats') renderDetailedStats();
             if (tab === 'segments') renderSegmentation();
+            if (tab === 'responses') renderResponsesTable();
         }
         
         function startSurvey() {
@@ -465,7 +509,12 @@
             try {
                 const querySnapshot = await window.getDocs(window.collection(window.db, 'responses'));
                 allResponses = [];
-                querySnapshot.forEach(doc => allResponses.push(doc.data()));
+                querySnapshot.forEach(doc => {
+                    allResponses.push({
+                        id: doc.id,
+                        ...doc.data()
+                    });
+                });
                 analyzeHypotheses();
             } catch (error) {
                 console.error('Erreur:', error);
@@ -604,6 +653,78 @@
             link.href = URL.createObjectURL(blob);
             link.download = 'reponses_' + new Date().toISOString().split('T')[0] + '.csv';
             link.click();
+        }
+        
+        function renderResponsesTable() {
+            if (allResponses.length === 0) {
+                document.getElementById('responsesTableContainer').innerHTML = '<p style="margin-top: 20px;">Aucune réponse à afficher</p>';
+                return;
+            }
+            
+            let html = `<p style="margin-top: 20px;"><strong>${allResponses.length} réponse(s)</strong></p>`;
+            html += '<table class="responses-table"><thead><tr>';
+            html += '<th>Date</th><th>Profil</th><th>Situation</th><th>Intérêt</th><th>Prix</th><th>Action</th>';
+            html += '</tr></thead><tbody>';
+            
+            allResponses.forEach((r, idx) => {
+                const date = new Date(r.timestamp).toLocaleString('fr-FR', { 
+                    day: '2-digit', 
+                    month: '2-digit', 
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                const profil = r.profil || 'N/A';
+                const situation = r.situation || 'N/A';
+                let interet = r.interet;
+                if (typeof interet === 'number') interet = questions[4].options[interet];
+                interet = interet || 'N/A';
+                const prix = r.prix || 'N/A';
+                
+                html += `<tr>
+                    <td>${date}</td>
+                    <td>${profil}</td>
+                    <td>${situation}</td>
+                    <td>${interet}</td>
+                    <td>${prix}</td>
+                    <td><button class="delete-btn" onclick="deleteResponse('${r.id}', ${idx})">Supprimer</button></td>
+                </tr>`;
+            });
+            
+            html += '</tbody></table>';
+            document.getElementById('responsesTableContainer').innerHTML = html;
+        }
+        
+        async function deleteResponse(docId, index) {
+            if (!confirm('Supprimer cette réponse ?')) return;
+            
+            try {
+                await window.deleteDoc(window.doc(window.db, 'responses', docId));
+                allResponses.splice(index, 1);
+                renderResponsesTable();
+                alert('✅ Réponse supprimée');
+            } catch (error) {
+                console.error('Erreur suppression:', error);
+                alert('❌ Erreur lors de la suppression: ' + error.message);
+            }
+        }
+        
+        async function deleteAllResponses() {
+            if (!confirm('⚠️ ATTENTION : Supprimer TOUTES les réponses ?\n\nCette action est irréversible !')) return;
+            if (!confirm('Êtes-vous VRAIMENT sûr ? Toutes les données seront perdues.')) return;
+            
+            try {
+                const deletePromises = allResponses.map(r => 
+                    window.deleteDoc(window.doc(window.db, 'responses', r.id))
+                );
+                await Promise.all(deletePromises);
+                allResponses = [];
+                renderResponsesTable();
+                alert('✅ Toutes les réponses ont été supprimées');
+            } catch (error) {
+                console.error('Erreur suppression:', error);
+                alert('❌ Erreur: ' + error.message);
+            }
         }
     </script>
 </body>
