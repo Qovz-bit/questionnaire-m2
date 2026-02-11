@@ -308,7 +308,7 @@
             
             <div id="adminResponses" class="admin-content hidden">
                 <h2>Gérer les réponses</h2>
-                <button class="button button-danger button-small" onclick="deleteAllResponses()">🗑️ Supprimer toutes les réponses</button>
+                <p class="subtitle">Cliquez sur "Supprimer" pour retirer une réponse spécifique de la base de données.</p>
                 <div id="responsesTableContainer"></div>
             </div>
         </div>
@@ -706,24 +706,6 @@
             } catch (error) {
                 console.error('Erreur suppression:', error);
                 alert('❌ Erreur lors de la suppression: ' + error.message);
-            }
-        }
-        
-        async function deleteAllResponses() {
-            if (!confirm('⚠️ ATTENTION : Supprimer TOUTES les réponses ?\n\nCette action est irréversible !')) return;
-            if (!confirm('Êtes-vous VRAIMENT sûr ? Toutes les données seront perdues.')) return;
-            
-            try {
-                const deletePromises = allResponses.map(r => 
-                    window.deleteDoc(window.doc(window.db, 'responses', r.id))
-                );
-                await Promise.all(deletePromises);
-                allResponses = [];
-                renderResponsesTable();
-                alert('✅ Toutes les réponses ont été supprimées');
-            } catch (error) {
-                console.error('Erreur suppression:', error);
-                alert('❌ Erreur: ' + error.message);
             }
         }
     </script>
