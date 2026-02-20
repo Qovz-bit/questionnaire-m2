@@ -1,0 +1,277 @@
+[
+  {
+    "id": "statut_principal",
+    "question": "Quel est votre statut actuel ?",
+    "type": "single",
+    "options": [
+      "Étudiant(e)",
+      "Salarié(e)",
+      "Indépendant(e) / Auto-entrepreneur",
+      "En recherche d'emploi",
+      "Retraité(e)",
+      "Autre"
+    ]
+  },
+  {
+    "id": "etudiant_origine",
+    "question": "Êtes-vous étudiant(e) français(e) ou étranger/ère ?",
+    "type": "single",
+    "condition": {
+      "questionId": "statut_principal",
+      "value": "Étudiant(e)"
+    },
+    "options": [
+      "Étudiant(e) français(e)",
+      "Étudiant(e) étranger/ère"
+    ]
+  },
+  {
+    "id": "etudiant_gestion",
+    "question": "Qui s'occupe de la gestion de votre logement ?",
+    "type": "single",
+    "condition": {
+      "questionId": "statut_principal",
+      "value": "Étudiant(e)"
+    },
+    "options": [
+      "Mes parents gèrent tout",
+      "Je gère moi-même",
+      "Mes parents m'aident mais je gère en partie",
+      "Un garant/tuteur s'en occupe"
+    ]
+  },
+  {
+    "id": "salarie_anciennete",
+    "question": "Depuis combien de temps êtes-vous salarié(e) ?",
+    "type": "single",
+    "condition": {
+      "questionId": "statut_principal",
+      "value": "Salarié(e)"
+    },
+    "options": [
+      "Moins de 6 mois (nouvel emploi / mutation)",
+      "6 mois à 2 ans",
+      "2 à 5 ans",
+      "Plus de 5 ans"
+    ]
+  },
+  {
+    "id": "salarie_mobilite",
+    "question": "Avez-vous déménagé récemment pour votre travail ?",
+    "type": "single",
+    "condition": {
+      "questionId": "statut_principal",
+      "value": "Salarié(e)"
+    },
+    "options": [
+      "Oui, il y a moins de 6 mois",
+      "Oui, il y a 6-12 mois",
+      "Non, je suis stable géographiquement",
+      "Je prévois de déménager prochainement"
+    ]
+  },
+  {
+    "id": "age",
+    "question": "Quelle est votre tranche d'âge ?",
+    "type": "single",
+    "options": [
+      "18-24 ans",
+      "25-34 ans",
+      "35-44 ans",
+      "45-54 ans",
+      "55 ans et plus"
+    ]
+  },
+  {
+    "id": "situation_familiale",
+    "question": "Quelle est votre situation familiale ?",
+    "type": "single",
+    "options": [
+      "Célibataire sans enfant",
+      "En couple sans enfant",
+      "Parent solo avec enfant(s)",
+      "En couple avec enfant(s)",
+      "Colocation",
+      "Autre"
+    ]
+  },
+  {
+    "id": "parent_solo_difficultes",
+    "question": "En tant que parent solo, quelles difficultés spécifiques rencontrez-vous ?",
+    "type": "multiple",
+    "helper": "Plusieurs choix possibles",
+    "condition": {
+      "questionId": "situation_familiale",
+      "value": "Parent solo avec enfant(s)"
+    },
+    "options": [
+      "Difficultés à constituer le dossier de location",
+      "Montants de loyer trop élevés par rapport aux revenus",
+      "Gestion APL complexe avec enfants à charge",
+      "Manque de temps pour les démarches administratives",
+      "Discrimination lors de la recherche de logement",
+      "Pas de difficultés particulières"
+    ]
+  },
+  {
+    "id": "situation_locative",
+    "question": "Situation actuelle de logement ?",
+    "type": "single",
+    "options": [
+      "Je suis locataire actuellement",
+      "Je suis propriétaire",
+      "Je recherche activement un logement",
+      "Hébergé(e) temporairement",
+      "Autre situation"
+    ]
+  },
+  {
+    "id": "anciennete_location",
+    "question": "Depuis combien de temps êtes-vous locataire de votre logement actuel ?",
+    "type": "single",
+    "condition": {
+      "questionId": "situation_locative",
+      "value": "Je suis locataire actuellement"
+    },
+    "options": [
+      "Moins de 6 mois",
+      "6 mois à 1 an",
+      "1 à 3 ans",
+      "3 à 5 ans",
+      "Plus de 5 ans"
+    ]
+  },
+  {
+    "id": "type_bailleur",
+    "question": "Qui est votre bailleur ?",
+    "type": "single",
+    "condition": {
+      "questionId": "situation_locative",
+      "value": "Je suis locataire actuellement"
+    },
+    "options": [
+      "Particulier (propriétaire direct)",
+      "Agence immobilière",
+      "Bailleur social (HLM, logement social)",
+      "Résidence étudiante / CROUS",
+      "Je ne sais pas"
+    ]
+  },
+  {
+    "id": "revenus_mensuels",
+    "question": "Quelle est votre tranche de revenus nets mensuels ?",
+    "type": "single",
+    "options": [
+      "Moins de 1 000€",
+      "1 000€ à 1 500€",
+      "1 500€ à 2 500€",
+      "2 500€ à 3 500€",
+      "Plus de 3 500€",
+      "Préfère ne pas répondre"
+    ]
+  },
+  {
+    "id": "part_loyer",
+    "question": "Quelle part de vos revenus représente votre loyer (charges comprises) ?",
+    "type": "single",
+    "condition": {
+      "questionId": "situation_locative",
+      "value": "Je suis locataire actuellement"
+    },
+    "options": [
+      "Moins de 25%",
+      "25% à 33%",
+      "33% à 40%",
+      "Plus de 40%",
+      "Je ne sais pas / Ne paie pas mon loyer"
+    ]
+  },
+  {
+    "id": "difficultes",
+    "question": "Quelles difficultés rencontrez-vous ou avez-vous rencontrées en tant que locataire ?",
+    "helper": "Plusieurs choix possibles",
+    "type": "multiple",
+    "options": [
+      "Comprendre les clauses de mon bail",
+      "Démarches administratives (APL, attestations, courriers...)",
+      "Récupération de la caution",
+      "Contrats énergie/assurance trop chers",
+      "Méconnaissance de mes droits face au propriétaire",
+      "Litiges ou tensions avec le propriétaire/agence",
+      "Charges élevées ou incompréhensibles",
+      "Manque de temps pour gérer tout cela",
+      "Discrimination lors de la recherche (origine, situation familiale...)",
+      "Aucune difficulté particulière"
+    ]
+  },
+  {
+    "id": "perte_argent",
+    "question": "Avez-vous déjà perdu de l'argent à cause d'un problème locatif ?",
+    "helper": "Caution non restituée, charges abusives, mauvais contrats...",
+    "type": "single",
+    "options": [
+      "Oui, plus de 1 000€",
+      "Oui, entre 500€ et 1 000€",
+      "Oui, entre 100€ et 500€",
+      "Oui, moins de 100€",
+      "Non, jamais"
+    ]
+  },
+  {
+    "id": "interet",
+    "question": "Seriez-vous intéressé(e) par un service qui gère l'ensemble de vos besoins de locataire :",
+    "helper": "Vérification bail • Optimisation contrats • Gestion APL • Assistance juridique • Automatisation démarches",
+    "type": "scale",
+    "options": [
+      "Peu ou pas intéressé(e)",
+      "Moyennement intéressé(e)",
+      "Très intéressé(e)",
+      "Extrêmement intéressé(e)"
+    ]
+  },
+  {
+    "id": "fonctionnalite_prioritaire",
+    "question": "Quelle fonctionnalité vous intéresserait le PLUS en priorité ?",
+    "helper": "Un seul choix",
+    "type": "single",
+    "options": [
+      "Protection juridique + suivi de caution + gestion des litiges",
+      "Optimisation automatique des contrats (énergie, assurance) au meilleur prix",
+      "Automatisation complète des démarches administratives (APL, attestations...)",
+      "Analyse IA du bail + vérification conformité",
+      "Service complet avec tableau de bord centralisé"
+    ]
+  },
+  {
+    "id": "prix",
+    "question": "Quel prix seriez-vous prêt(e) à payer mensuellement pour ce service complet ?",
+    "type": "single",
+    "options": [
+      "5 à 10€/mois",
+      "10 à 15€/mois",
+      "15 à 20€/mois",
+      "20 à 30€/mois",
+      "Plus de 30€/mois",
+      "Je ne paierais pas pour ce service"
+    ]
+  },
+  {
+    "id": "utilisation",
+    "question": "Si ce service était disponible dès maintenant, l'utiliseriez-vous ?",
+    "type": "single",
+    "options": [
+      "Oui, certainement",
+      "Oui, probablement",
+      "Peut-être",
+      "Probablement pas",
+      "Non"
+    ]
+  },
+  {
+    "id": "remarque",
+    "question": "Une remarque, suggestion ou précision sur votre situation ?",
+    "helper": "Optionnel",
+    "type": "text",
+    "options": []
+  }
+]
